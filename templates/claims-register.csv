@@ -1,0 +1,2 @@
+claim_id,claim_text,subject_person_ids,claim_type,artifact_ids,supporting_independence_groups,contradicting_artifact_ids,status,confidence,rationale,next_action
+C-0001,Андрей Кузьмич Лебедев погиб в 1943,P-0005,death,A-0001,G1,,document,high,прямая запись в донесении,найти место захоронения

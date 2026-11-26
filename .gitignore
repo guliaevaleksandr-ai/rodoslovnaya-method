@@ -1,0 +1,11 @@
+# Семейные данные в репозиторий не попадают
+my/
+fanimg/
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.pdf
+*.html
+!fan/fan_template.html
+.DS_Store

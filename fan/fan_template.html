@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Веер предков</title>
+<style>
+:root{--bg:#f6f1e7;--paper:#fffdf8;--ink:#2b2620;--mute:#7a7064;--line:#ddd3c2;--empty:#ece5d8;--accent:#9a3b2e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1916;--paper:#24211d;--ink:#eee6d8;--mute:#a69b8b;--line:#3d3830;--empty:#2e2a25;--accent:#e08a6f}}
+:root[data-theme="dark"]{--bg:#1b1916;--paper:#24211d;--ink:#eee6d8;--mute:#a69b8b;--line:#3d3830;--empty:#2e2a25;--accent:#e08a6f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "PT Sans","Helvetica Neue",Arial,sans-serif}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:600;margin:0}
+header{max-width:1200px;margin:0 auto;padding:28px 16px 8px}
+header h1{font-size:34px;letter-spacing:.01em}
+header p{margin:6px 0 0;color:var(--mute);max-width:720px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px 40px;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:24px;align-items:start}
+.fanbox{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:8px}
+svg{width:100%;height:auto;display:block}
+.w{cursor:pointer;transition:opacity .2s}
+.w path{stroke:var(--paper);stroke-width:1.5}
+.w.h path{stroke-dasharray:5 4;stroke:var(--ink);stroke-opacity:.55;stroke-width:1.2}
+.w:hover path{filter:brightness(1.08)}
+.w.sel path{stroke:var(--accent);stroke-width:3;stroke-dasharray:none;stroke-opacity:1}
+.w.dim{opacity:.25}
+.w text{pointer-events:none;fill:#fff;font-size:12px}
+.w.f text,.w.h text{fill:var(--ink)}
+.w .nm{font-weight:700}
+.w .yr{font-size:10.5px;opacity:.85}
+.unk path{fill:var(--empty);stroke:var(--paper);stroke-width:1.5}
+.unk text{fill:var(--mute);font-size:11px}
+aside{position:sticky;top:12px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;max-height:calc(100vh - 24px);overflow:auto}
+aside .who{font-size:13px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+aside h2{font-size:24px;margin:4px 0 2px}
+aside .meta{color:var(--mute);margin-bottom:10px}
+.badge{display:inline-block;font-size:12px;border-radius:99px;padding:2px 10px;margin:0 0 10px;border:1px solid var(--line)}
+.badge.d{background:#2f6b3f;color:#fff;border-color:#2f6b3f}
+.badge.f{background:transparent}
+.badge.h{border-style:dashed;border-color:var(--ink)}
+aside p{margin:0 0 10px}
+aside a{color:var(--accent)}
+.thumbs{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+.thumbs figure{margin:0;width:100px;cursor:zoom-in}
+.thumbs img{width:100px;height:100px;object-fit:cover;border-radius:8px;border:1px solid var(--line);display:block}
+.thumbs figcaption{font-size:11px;color:var(--mute);line-height:1.25;margin-top:3px}
+.sub{font-size:13px;font-weight:700;color:var(--mute);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.05em}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+.chip{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:99px;padding:5px 12px 5px 8px;font:inherit;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.chip i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.chip.on{outline:2px solid var(--accent)}
+.key{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--mute);margin:10px 4px 0}
+.key span{display:inline-flex;align-items:center;gap:6px}
+.key b{width:22px;height:12px;border-radius:3px;display:inline-block}
+section.chron{max-width:1200px;margin:0 auto;padding:0 16px 60px}
+section.chron h2{font-size:26px;margin:0 0 10px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tl{border-left:2px solid var(--line);margin-left:52px;padding-left:0}
+.ev{position:relative;padding:6px 0 10px 18px}
+.ev .yr{position:absolute;left:-60px;width:50px;text-align:right;font-family:Georgia,serif;font-weight:600}
+.ev::before{content:"";position:absolute;left:-7px;top:12px;width:12px;height:12px;border-radius:50%;background:var(--c,var(--mute));border:2px solid var(--bg)}
+.ev.h{color:var(--mute);font-style:italic}
+.ev.x{color:var(--mute)}
+.ev .tag{font-size:11px;color:var(--mute);margin-left:6px;font-style:normal}
+#lb{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;flex-direction:column;z-index:10;padding:16px;cursor:zoom-out}
+#lb img{max-width:100%;max-height:85vh;border-radius:6px}
+#lb div{color:#eee;margin-top:10px;text-align:center;max-width:800px}
+.foot{color:var(--mute);font-size:13px;margin-top:18px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr}aside{position:static;max-height:none}header h1{font-size:28px}}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="ttl">Веер предков</h1>
+  <p id="sub"></p>
+  <div class="legend" id="legend"></div>
+  <div class="key">
+    <span><b style="background:#3b6ea5"></b>документ</span>
+    <span><b style="background:#3b6ea5;opacity:.38"></b>со слов семьи</span>
+    <span><b style="border:1.5px dashed var(--ink)"></b>гипотеза</span>
+    <span><b style="background:var(--empty)"></b>имя не найдено</span>
+  </div>
+</header>
+<div class="wrap">
+  <div class="fanbox"><svg id="fan" viewBox="-500 -500 1000 680" role="img" aria-label="Веер предков"></svg></div>
+  <aside id="card"></aside>
+</div>
+<section class="chron">
+  <h2>Хроника рода</h2>
+  <div class="filters" id="filters"></div>
+  <div class="tl" id="tl"></div>
+  <p class="foot" id="foot"></p>
+</section>
+<div id="lb"><img alt=""><div></div></div>
+<script>
+const D=/*__DATA__*/null;
+const P=D.people, L=D.lines, M=D.meta||{}, NS="http://www.w3.org/2000/svg";
+if(M.title){document.title=M.title;document.getElementById("ttl").textContent=M.title}
+document.getElementById("sub").textContent=M.subtitle||"Слева — папина сторона, справа — мамина. Нажми на человека, чтобы увидеть, что о нём известно и откуда.";
+document.getElementById("foot").textContent=M.footer||"Гипотезы показаны пунктиром и курсивом — это направления проверки, а не установленное родство.";
+const svg=document.getElementById("fan");
+const START=-200, SPAN=220; // градусы; 0 — вправо, -90 — вверх
+const R=[0,70,150,228,302,370,430,478];
+function lineOf(path){let best=null,bl=-1;for(const l of L)for(const p of l.pre)if(path.startsWith(p)&&p.length>bl){best=l;bl=p.length}return best}
+function pt(r,a){a=a*Math.PI/180;return[r*Math.cos(a),r*Math.sin(a)]}
+function wedge(r0,r1,a0,a1){const[x0,y0]=pt(r1,a0),[x1,y1]=pt(r1,a1),[x2,y2]=pt(r0,a1),[x3,y3]=pt(r0,a0);const lg=a1-a0>180?1:0;
+ return `M${x0},${y0}A${r1},${r1} 0 ${lg} 1 ${x1},${y1}L${x2},${y2}A${r0},${r0} 0 ${lg} 0 ${x3},${y3}Z`}
+function el(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+function slotAngles(path){const g=path.length;let idx=0;for(const ch of path)idx=idx*2+(ch==="M"?1:0);const w=SPAN/2**g;return[START+idx*w,START+(idx+1)*w]}
+function shortName(p){return p.n.split(" ")[0]}
+function draw(){
+ svg.innerHTML="";
+ const paths=new Set(Object.keys(P));
+ // кого рисуем: известные + пустые родители известных (до 5 колена)
+ const slots=new Set();
+ for(const k of paths){if(k)slots.add(k);if(k.length<5){slots.add(k+"F");slots.add(k+"M")}}
+ for(const path of slots){
+  const g=path.length;if(g<1||g>6)continue;
+  const[a0,a1]=slotAngles(path);const r0=R[g],r1=R[g+1];
+  const p=P[path];const grp=el("g",{},svg);
+  el("path",{d:wedge(r0,r1,a0,a1)},grp);
+  const mid=(a0+a1)/2, rm=(r0+r1)/2;
+  if(!p){grp.setAttribute("class","unk");if(g<=4){const[x,y]=pt(rm,mid);el("text",{x,y:y+4,"text-anchor":"middle"},grp).textContent="?"}continue}
+  const ln=lineOf(path);grp.setAttribute("class","w "+p.c);grp.dataset.path=path;grp.dataset.line=ln?ln.k:"";
+  const sh=grp.firstChild;sh.setAttribute("fill",ln?ln.color:"#8a7f70");if(p.c!=="d")sh.setAttribute("fill-opacity",p.c==="h"?.18:.38);
+  grp.addEventListener("click",()=>select(path));
+  const[x,y]=pt(rm,mid);
+  if(g<=2){ // поперёк радиуса
+   let rot=mid+90;if(rot>90&&rot<270)rot-=180;
+   const t=el("text",{transform:`translate(${x},${y}) rotate(${rot})`,"text-anchor":"middle"},grp);
+   const lines=g===1?[p.n,p.s,p.y]:[p.n.split(" ").slice(0,2).join(" "),p.s.split(" ")[0],p.y];
+   lines.filter(Boolean).forEach((s,i,arr)=>{const ts=el("tspan",{x:0,dy:i===0?-(arr.length-1)*7:15,class:i===0?"nm":(i===arr.length-1&&p.y?"yr":"")},t);ts.textContent=s.length>24?s.slice(0,23)+"…":s});
+  }else{ // вдоль радиуса
+   let rot=mid,anchor="middle";let flip=(mid<-90||mid>90);if(flip)rot+=180;
+   const t=el("text",{transform:`translate(${x},${y}) rotate(${rot})`,"text-anchor":anchor},grp);
+   const nm=shortName(p).replace(/[(),]/g,""), sn=p.s.split(" ")[0];
+   const arr=g>=5?[nm,sn]:[nm,sn,p.y];
+   arr.filter(Boolean).forEach((s,i,a)=>{const ts=el("tspan",{x:0,dy:i===0?-(a.length-1)*6.5:13,class:i===0?"nm":(p.y&&s===p.y?"yr":"")},t);ts.textContent=s.length>14?s.slice(0,13)+"…":s});
+   if(g>=5)t.style.fontSize="10.5px";
+  }
+ }
+ // центр
+ const me=P[""];const c=el("g",{class:"w f"},svg);c.dataset.path="";
+ el("circle",{r:R[1]-2,fill:"var(--accent)"},c);
+ const t=el("text",{"text-anchor":"middle",y:-4},c);t.style.fill="#fff";
+ [[me.n.split(" ")[0],"nm"],[me.y||"","yr"]].forEach(([s,cl],i)=>{const ts=el("tspan",{x:0,dy:i?17:0,class:cl},t);ts.textContent=s});
+ c.addEventListener("click",()=>select(""));
+ // подписи сторон
+ const s1=el("text",{x:-250,y:120,"text-anchor":"middle",fill:"var(--mute)","font-size":"14","letter-spacing":"3"},svg);s1.textContent="ПАПИНА СТОРОНА";
+ const s2=el("text",{x:250,y:120,"text-anchor":"middle",fill:"var(--mute)","font-size":"14","letter-spacing":"3"},svg);s2.textContent="МАМИНА СТОРОНА";
+}
+const ROLE={"":"ты","F":"папа","M":"мама"};
+function role(path){if(ROLE[path]!==undefined)return ROLE[path];const g=path.length;const side=path[0]==="F"?"по папе":"по маме";const sex=path.at(-1)==="F";
+ const base=g===2?(sex?"дед":"бабушка"):g===3?(sex?"прадед":"прабабушка"):g===4?(sex?"прапрадед":"прапрабабушка"):(sex?"прапрапрадед":"прапрапрабабушка");return base+" "+side}
+const ST={d:"есть документ",f:"со слов семьи",h:"гипотеза — не доказано"};
+function thumbs(list){list=list.filter(([fn])=>D.imgs[fn]);if(!list.length)return"";return'<div class="thumbs">'+list.map(([fn,cap])=>`<figure data-fn="${fn}"><img src="${D.imgs[fn]}" alt=""><figcaption>${cap}</figcaption></figure>`).join("")+"</div>"}
+function select(path){
+ document.querySelectorAll(".w").forEach(e=>e.classList.toggle("sel",e.dataset.path===path));
+ const p=P[path];const ln=lineOf(path);
+ const card=document.getElementById("card");
+ const parents=["F","M"].map(s=>P[path+s]?`<a href="#" data-go="${path+s}">${P[path+s].n} ${P[path+s].s}</a>`:null).filter(Boolean);
+ card.innerHTML=`<div class="who">${role(path)}${ln?" · линия "+ln.name:""}</div><h2>${p.n}</h2><div class="meta">${p.s}${p.y?" · "+p.y:""}${p.p?" · "+p.p:""}</div>
+ <span class="badge ${p.c}">${ST[p.c]}</span>${(p.t||[]).map(x=>`<p>${x}</p>`).join("")}
+ ${p.ph&&p.ph.length?'<div class="sub">Фото</div>'+thumbs(p.ph):""}${p.dc&&p.dc.length?'<div class="sub">Документы</div>'+thumbs(p.dc):""}
+ ${parents.length?'<div class="sub">Родители</div><p>'+parents.join("<br>")+"</p>":""}`;
+ card.querySelectorAll("figure").forEach(f=>f.addEventListener("click",()=>openLB(f.dataset.fn,f.querySelector("figcaption").textContent)));
+ card.querySelectorAll("[data-go]").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();select(a.dataset.go)}));
+ if(window.innerWidth<900&&path!==undefined&&select.ready)card.scrollIntoView({behavior:"smooth"});
+}
+function openLB(fn,cap){const lb=document.getElementById("lb");lb.querySelector("img").src=D.imgs[fn];lb.querySelector("div").textContent=cap;lb.style.display="flex"}
+document.getElementById("lb").addEventListener("click",e=>e.currentTarget.style.display="none");
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.getElementById("lb").style.display="none"});
+// линии
+let activeLine=null;
+function setLine(k){activeLine=activeLine===k?null:k;
+ document.querySelectorAll(".legend .chip").forEach(c=>c.classList.toggle("on",c.dataset.k===activeLine));
+ document.querySelectorAll(".w[data-line]").forEach(w=>w.classList.toggle("dim",!!activeLine&&w.dataset.line!==activeLine&&w.dataset.path!==""));
+ if(activeLine){const l=L.find(x=>x.k===k);const card=document.getElementById("card");
+  card.innerHTML=`<div class="who">линия рода</div><h2>${l.name}</h2><p>${l.text}</p><div class="sub">Люди в веере</div><p>${Object.keys(P).filter(p=>lineOf(p)&&lineOf(p).k===k).sort((a,b)=>a.length-b.length).map(p=>`<a href="#" data-go="${p}">${P[p].n} ${P[p].s}</a>`).join("<br>")}</p>`;
+  card.querySelectorAll("[data-go]").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();select(a.dataset.go)}))}
+ renderTL()}
+const leg=document.getElementById("legend");
+L.forEach(l=>{const b=document.createElement("button");b.className="chip";b.dataset.k=l.k;b.innerHTML=`<i style="background:${l.color}"></i>${l.name}`;b.onclick=()=>setLine(l.k);leg.appendChild(b)});
+// хроника
+let tlf="all";
+const F=document.getElementById("filters");
+[["all","Все"],...L.map(l=>[l.k,l.name]),["ctx","Эпоха"]].forEach(([k,n])=>{const b=document.createElement("button");b.className="chip";b.dataset.k=k;b.textContent=n;b.onclick=()=>{tlf=k;renderTL()};F.appendChild(b)});
+function renderTL(){const want=activeLine||tlf;
+ F.querySelectorAll(".chip").forEach(c=>c.classList.toggle("on",c.dataset.k===want));
+ const tl=document.getElementById("tl");tl.innerHTML="";
+ D.events.filter(e=>want==="all"||e.lane===want).forEach(e=>{const l=L.find(x=>x.k===e.lane);const d=document.createElement("div");d.className="ev "+e.c;
+  if(l)d.style.setProperty("--c",l.color);
+  d.innerHTML=`<span class="yr">${e.y}</span>${e.t}${e.c==="h"?'<span class="tag">гипотеза</span>':e.c==="f"?'<span class="tag">со слов семьи</span>':""}`;tl.appendChild(d)})}
+draw();select("");select.ready=true;renderTL();
+</script>
+</body>
+</html>
