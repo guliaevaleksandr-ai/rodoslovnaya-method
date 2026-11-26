@@ -384,16 +384,29 @@ def plural(surname):
     return s
 
 
+SUR_END = ("ов", "ев", "ёв", "ин", "ын", "ова", "ева", "ёва", "ина", "ына", "ский", "ская", "цкий", "цкая")
+
+
 def split_label(label):
-    base, _, extra = label.partition("(")
-    toks = base.split()
-    if len(toks) >= 2:
-        n, s = " ".join(toks[:-1]), toks[-1]
+    """«Соколов Иван Петрович (дед по маме)» → ("Иван Петрович", "Соколов").
+    Комментарии после « — » и в скобках отбрасываются; одно слово с заглавной в скобках — девичья/вторая фамилия."""
+    base = re.split(r"\s+[—–-]\s+", label)[0]
+    keep = ""
+    for par in re.findall(r"\(([^)]*)\)", base):
+        w = re.sub(r"^урожд\.\s*", "", par.strip()).rstrip("?").split("/")[0]
+        if re.fullmatch(r"[А-ЯЁ][а-яё]+", w) and w.endswith(SUR_END):  # девичья/вторая фамилия, не прозвище
+            keep = w + ("?" if par.strip().endswith("?") else "")
+    base = re.sub(r"\([^)]*\)|«[^»]*»", " ", base)
+    toks = [t.split("/")[0] for t in base.split() if t]
+    if len(toks) >= 2 and toks[0].endswith(SUR_END) and not toks[-1].endswith(SUR_END):
+        toks = toks[1:] + toks[:1]  # фамилия стояла первой
+    if len(toks) >= 2 and toks[-1].endswith(SUR_END):
+        n, s_ = " ".join(toks[:-1]), toks[-1]
     else:
-        n, s = base.strip(), ""
-    if extra:
-        s = (s + " (" + extra).strip()
-    return n, s
+        n, s_ = " ".join(toks), ""
+    if keep:
+        s_ = f"{s_} ({keep})" if s_ else keep.rstrip("?")
+    return n or label, s_
 
 
 def year(v):
@@ -445,7 +458,9 @@ def cmd_fan(a):
             continue
         sur = people[path]["s"].split(" ")[0]
         child = people.get(path[:-1], {}).get("s", "").split(" ")[0]
-        if path in ("F", "M") or (sur and plural(sur) != plural(child)):
+        sur = re.sub(r"[^А-ЯЁа-яёA-Za-z-]", "", sur)
+        child = re.sub(r"[^А-ЯЁа-яёA-Za-z-]", "", child)
+        if sur and (path in ("F", "M") or plural(sur) != plural(child)):
             name = plural(sur) or "?"
             ln = next((l for l in lines if l["name"] == name), None)
             if ln:
