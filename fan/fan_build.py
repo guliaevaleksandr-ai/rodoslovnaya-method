@@ -15,30 +15,19 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 MIME = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp"}
 
 
-def main():
-    ap = argparse.ArgumentParser(description="Собрать «Веер предков» из JSON")
-    ap.add_argument("data", help="JSON с людьми, линиями и событиями")
-    ap.add_argument("out", help="куда записать HTML")
-    ap.add_argument("--img", help="папка с картинками (по умолчанию fanimg/ рядом с JSON)")
-    a = ap.parse_args()
-
-    with open(a.data, encoding="utf-8") as f:
-        D = json.load(f)
-    img_dir = a.img or os.path.join(os.path.dirname(os.path.abspath(a.data)), "fanimg")
-
+def build(D, out, img_dir=None):
+    """Собрать HTML из словаря D (meta, people, lines, events). Возвращает размер файла."""
     people = D["people"]
     if "" not in people:
         sys.exit('нужен человек в центре: ключ "" в people')
-
-    # картинки: встраиваем каждую один раз; отсутствующие — пропускаем с предупреждением
     imgs = {}
     for path, p in people.items():
         for key in ("ph", "dc"):
             kept = []
             for fn, cap in p.get(key, []):
-                fp = os.path.join(img_dir, fn)
                 if fn not in imgs:
-                    if not os.path.isfile(fp):
+                    fp = os.path.join(img_dir or "", fn)
+                    if not img_dir or not os.path.isfile(fp):
                         print(f"  нет картинки {fn} — пропускаю", file=sys.stderr)
                         continue
                     mime = MIME.get(os.path.splitext(fn)[1].lower(), "image/jpeg")
@@ -46,7 +35,6 @@ def main():
                         imgs[fn] = f"data:{mime};base64," + base64.b64encode(f.read()).decode()
                 kept.append([fn, cap])
             p[key] = kept
-
     data = dict(
         meta=D.get("meta", {}),
         people=people,
@@ -56,10 +44,22 @@ def main():
     )
     with open(os.path.join(HERE, "fan_template.html"), encoding="utf-8") as f:
         tpl = f.read()
-    html = tpl.replace("/*__DATA__*/null", json.dumps(data, ensure_ascii=False))
-    with open(a.out, "w", encoding="utf-8") as f:
-        f.write(html)
-    print("ok", a.out, os.path.getsize(a.out), "байт,", len(people), "чел.,", len(imgs), "картинок")
+    with open(out, "w", encoding="utf-8") as f:
+        f.write(tpl.replace("/*__DATA__*/null", json.dumps(data, ensure_ascii=False)))
+    return os.path.getsize(out), len(people), len(imgs)
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Собрать «Веер предков» из JSON")
+    ap.add_argument("data", help="JSON с людьми, линиями и событиями")
+    ap.add_argument("out", help="куда записать HTML")
+    ap.add_argument("--img", help="папка с картинками (по умолчанию fanimg/ рядом с JSON)")
+    a = ap.parse_args()
+    with open(a.data, encoding="utf-8") as f:
+        D = json.load(f)
+    img_dir = a.img or os.path.join(os.path.dirname(os.path.abspath(a.data)), "fanimg")
+    size, n, ni = build(D, a.out, img_dir)
+    print("ok", a.out, size, "байт,", n, "чел.,", ni, "картинок")
 
 
 if __name__ == "__main__":

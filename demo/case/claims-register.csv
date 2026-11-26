@@ -1,0 +1,3 @@
+claim_id,claim_text,subject_person_ids,claim_type,artifact_ids,supporting_independence_groups,contradicting_artifact_ids,status,confidence,rationale,next_action
+C-0001,"Фёдор Ильич Соколов родился в 1901 году в Энске, отец — Илья Петров",P-0005;P-0010,birth,A-0002,G-GAEO-345,,single-source,,,
+C-0002,Андрей Кузьмич Лебедев погиб в 1943 году,P-0007,death,A-0003,G-CAMO-000,,single-source,,,

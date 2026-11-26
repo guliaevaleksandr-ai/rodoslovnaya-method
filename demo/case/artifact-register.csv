@@ -1,0 +1,4 @@
+artifact_id,captured_at,source_title,source_url_or_path,source_type,repository_or_archive,archival_reference,record_date,place_as_written,language_script,person_ids,names_as_written,summary,provenance_level,directness,originality,independence_group,legibility,access_notes,sha256,related_claim_ids,reliability_notes,status
+A-0001,,Рассказ мамы (демо),беседа 2026-01-05,user-statement,,,,,,,,,family-memory,,,G-FAM-MOTHER,,,,,,
+A-0002,,"Метрическая книга, рождение Фёдора (демо)",,,,"ГАЭО ф. 000, оп. 2, д. 345, № 17",1901,Энск,,,,,archival,direct,copy-scan,G-GAEO-345,,,,,,
+A-0003,,Донесение о потерях (демо),,,,"ЦАМО ф. 00, оп. 00000, д. 000",1943,,,,,,archival,,,G-CAMO-000,,,,,,

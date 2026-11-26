@@ -1,0 +1,11 @@
+person_id,preferred_label,living_status,names_as_written,normalized_name_variants,birth_estimate,death_estimate,places,historical_jurisdictions,relatives_as_reported,occupation_or_status,confession_or_community_as_recorded,source_artifact_ids,candidate_status,merge_or_split_rationale,notes
+P-0001,Иван Петрович Соколов,living,,,1990,,Энск,,,,,A-0001,confirmed-subject,,
+P-0002,Пётр Николаевич Соколов,living,,,,,,,,,,A-0001,,,
+P-0003,Ольга Сергеевна Лебедева (Соколова),living,,,,,,,,,,A-0001,,,
+P-0004,Николай Фёдорович Соколов,deceased,,,1928,1999,Энск,,,,,A-0001,,,
+P-0005,Фёдор Ильич Соколов,deceased,,,1901,1960,Энск,,,,,A-0002,,,
+P-0006,Сергей Андреевич Лебедев,deceased,,,1940,2010,хутор Ольховый,,,,,A-0001,,,
+P-0007,Андрей Кузьмич Лебедев,deceased,,,1912,1943,хутор Ольховый,,,,,A-0003,,,
+P-0008,Валентина Павловна Морозова,deceased,,,,,,,,,,A-0001,,,
+P-0009,Пётр Соколов,,,,,1899,,,,,,,hypothesis,,Совпадает только имя и фамилия — нужен второй признак
+P-0010,Илья Петрович Соколов,deceased,,,,,,,,,,A-0002,,,
