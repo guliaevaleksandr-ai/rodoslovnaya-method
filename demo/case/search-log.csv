@@ -1,3 +1,3 @@
 search_id,timestamp,target_person_ids,research_goal,query,language_locale,source_or_domain,filters,result_status,artifact_ids,blocker,captcha_attempts,next_step
-S-0001,2026-11-26,P-0007,,Лебедев Андрей Кузьмич,ru,obd-memorial.ru,,found,A-0003,,,
-S-0002,2026-11-26,,,Ветров Иван,ru,pamyat-naroda.ru,,blocked-captcha,,капча — человек,,
+S-0001,2026-01-10,P-0007,,Лебедев Андрей Кузьмич,ru,obd-memorial.ru,,found,A-0003,,,
+S-0002,2026-01-10,,,Ветров Иван,ru,pamyat-naroda.ru,,blocked-captcha,,капча — человек,,

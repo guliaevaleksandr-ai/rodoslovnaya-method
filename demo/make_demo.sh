@@ -53,7 +53,7 @@ rel $MGM mother-of $MA
 rel $MGGF father-of $MGF
 
 # журнал поиска
-$R log --query "Лебедев Андрей Кузьмич" --source obd-memorial.ru --status found --persons $MGGF --artifacts $A3 >/dev/null
-$R log --query "Ветров Иван" --source pamyat-naroda.ru --status blocked-captcha --blocker "капча — человек" >/dev/null
+$R log --query "Лебедев Андрей Кузьмич" --source obd-memorial.ru --date 2026-01-10 --status found --persons $MGGF --artifacts $A3 >/dev/null
+$R log --query "Ветров Иван" --source pamyat-naroda.ru --date 2026-01-10 --status blocked-captcha --blocker "капча — человек" >/dev/null
 
 $R check
